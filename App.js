@@ -1,12 +1,47 @@
+import axios from 'axios';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+// import api from './src/services/api'
+
+let baseURL= 'https://api-filmes-em-cartaz.herokuapp.com/portoalegre'
 
 export default function App() {
+  const [state, setState] = useState({
+    results: [],
+  });
+
+    //puxa dados da pi
+    const Filmes = () => {
+      axios(baseURL).then(({ data }) => {
+        let results = data
+        setState(prevState => {
+          return { ...prevState, results: results }
+        })
+      })
+    }
+
+    useEffect(() => {
+        Filmes()
+    }, [])
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <ScrollView>
+        {state.results.map(result => ( //puxa filme pesquisado
+          <View key = {result.id}>
+            <Image 
+              source={{ uri : result.url_capa }}
+              style={{
+                width: 300,
+                height: 300
+              }}
+              resizeMode = "cover"
+            />
+            <Text>{result.titulo} {result.media_votos}</Text>
+            <Text>{result.descricao}</Text>
+          </View>
+        ))}
+      </ScrollView>
   );
 }
 
